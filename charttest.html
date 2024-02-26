@@ -89,10 +89,14 @@
         return totalSize;
     }
 
-    // Function to update the chart
-    function updateChart(newSize) {
-        const ctx = document.getElementById('size-chart').getContext('2d');
-        const timeNow = new Date().toLocaleTimeString();
+// Function to update the chart
+function updateChart(newSize) {
+    const ctx = document.getElementById('size-chart').getContext('2d');
+    const timeNow = new Date().toLocaleTimeString();
+
+    console.log('timeNow:', timeNow);
+    console.log('newSize:', newSize);
+}
 
         if (!window.myChart) {
             // If the chart doesn't exist, create a new one
