@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Pages Size</title>
+    <title>GitHub Pages Size Chart</title>
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<h1>GitHub Pages Size</h1>
+<h1>GitHub Pages Size Chart</h1>
 
-<p id="size-info">Loading...</p>
+<canvas id="size-chart" width="400" height="200"></canvas>
 
 <script>
     // Function to format bytes into readable size
@@ -28,22 +30,74 @@
     // Function to get the size of the GitHub Pages repository
     async function getRepoSize() {
         try {
-            const response = await fetch('https://api.github.com/repos/blizztube/minimapper/contents?ref=main');
+            const accessToken = 'YOUR_ACCESS_TOKEN'; // Replace with your GitHub access token
+            const headers = new Headers({
+                'Authorization': `Bearer ${accessToken}`
+            });
+
+            const response = await fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents?ref=main', { headers });
             const data = await response.json();
 
             // Calculate size based on the length of the content of all files
             const totalSizeInBytes = data.reduce((acc, file) => acc + file.size, 0);
             const formattedSize = formatBytes(totalSizeInBytes);
 
-            document.getElementById('size-info').textContent = `Size: ${formattedSize}`;
+            // Update the chart with the new size
+            updateChart(formattedSize);
         } catch (error) {
             console.error('Error fetching repository size:', error);
-            document.getElementById('size-info').textContent = 'Error fetching size';
+        }
+    }
+
+    // Function to update the chart
+    function updateChart(newSize) {
+        const ctx = document.getElementById('size-chart').getContext('2d');
+        const timeNow = new Date().toLocaleTimeString();
+
+        if (!window.myChart) {
+            // If the chart doesn't exist, create a new one
+            window.myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [timeNow],
+                    datasets: [{
+                        label: 'GitHub Pages Size',
+                        data: [newSize],
+                        borderColor: 'rgb(75, 192, 192)',
+                        borderWidth: 2,
+                        fill: false,
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        } else {
+            // If the chart already exists, add a new data point
+            window.myChart.data.labels.push(timeNow);
+            window.myChart.data.datasets[0].data.push(newSize);
+
+            // Limit the number of data points for better visualization
+            const maxDataPoints = 10;
+            while (window.myChart.data.labels.length > maxDataPoints) {
+                window.myChart.data.labels.shift();
+                window.myChart.data.datasets[0].data.shift();
+            }
+
+            window.myChart.update();
         }
     }
 
     // Call the function when the page loads
     getRepoSize();
+
+    // Update the size every 20 seconds
+    setInterval(getRepoSize, 20000);
 </script>
 
 </body>
