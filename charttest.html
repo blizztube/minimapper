@@ -19,7 +19,8 @@
 
         #size-chart {
             max-width: 500px;
-            width: 100%;
+            width: 500px;
+            max-height: 400px;
         }
     </style>
 </head>
@@ -89,14 +90,10 @@
         return totalSize;
     }
 
-// Function to update the chart
-function updateChart(newSize) {
-    const ctx = document.getElementById('size-chart').getContext('2d');
-    const timeNow = new Date().toLocaleTimeString();
-
-    console.log('timeNow:', timeNow);
-    console.log('newSize:', newSize);
-}
+    // Function to update the chart
+    function updateChart(newSize) {
+        const ctx = document.getElementById('size-chart').getContext('2d');
+        const timeNow = new Date().toLocaleTimeString();
 
         if (!window.myChart) {
             // If the chart doesn't exist, create a new one
@@ -146,4 +143,3 @@ function updateChart(newSize) {
 
 </body>
 </html>
-
