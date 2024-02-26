@@ -3,34 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Pages Size Chart</title>
-    <!-- Include Chart.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
-        #size-info {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        #size-chart {
-            max-width: 500px;
-            width: 500px;
-            max-height: 400px;
-        }
-    </style>
+    <title>GitHub Pages Size</title>
 </head>
 <body>
 
-<h1>GitHub Pages Size Chart</h1>
+<h1>GitHub Pages Size</h1>
 
-<p id="size-info">Size: Loading...</p>
-
-<canvas id="size-chart" height="200"></canvas>
+<!-- You can add multiple elements with different identifiers -->
+<p id="size-info-repo1">Size (Repo 1): Loading...</p>
+<p id="size-info-repo2">Size (Repo 2): Loading...</p>
+<!-- Add more as needed -->
 
 <script>
     // Function to format bytes into readable size
@@ -46,22 +28,19 @@
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
-    // Function to get the size of the GitHub Pages repository
-    async function getRepoSize() {
+    // Function to get the size of a GitHub Pages repository
+    async function getRepoSize(repoUrl, identifier) {
         try {
-            const repoContents = await fetchRepoContents('https://api.github.com/repos/blizztube/minimapper/contents');
+            const repoContents = await fetchRepoContents(repoUrl);
 
             // Calculate size based on the length of the content of all files
             const totalSizeInBytes = await calculateTotalSize(repoContents);
             const formattedSize = formatBytes(totalSizeInBytes);
 
-            // Update the size information
-            document.getElementById('size-info').textContent = `Size: ${formattedSize}`;
-
-            // Update the chart with the new size
-            updateChart(formattedSize);
+            // Update the size information for the specific repository
+            document.getElementById(`size-info-${identifier}`).textContent = `Size (${identifier}): ${formattedSize}`;
         } catch (error) {
-            console.error('Error fetching repository size:', error);
+            console.error(`Error fetching repository size for ${identifier}:`, error);
         }
     }
 
@@ -90,61 +69,10 @@
         return totalSize;
     }
 
-// Function to update the chart
-function updateChart(newSize) {
-    console.log('Updating chart:', newSize);
-
-    const ctx = document.getElementById('size-chart').getContext('2d');
-    const timeNow = new Date().toLocaleTimeString();
-
-    if (!window.myChart) {
-        // If the chart doesn't exist, create a new one
-        console.log('Creating new chart');
-        window.myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [timeNow],
-                datasets: [{
-                    label: 'GitHub Pages Size',
-                    data: [newSize],
-                    borderColor: 'rgb(75, 192, 192)',
-                    borderWidth: 2,
-                    fill: false,
-                }]
-            },
-            options: {
-                scales: {
-                    x: {
-                        type: 'linear',
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-    } else {
-        // If the chart already exists, add a new data point
-        console.log('Adding new data point to existing chart');
-        window.myChart.data.labels.push(timeNow);
-        window.myChart.data.datasets[0].data.push(newSize);
-
-        // Limit the number of data points for better visualization
-        const maxDataPoints = 10;
-        while (window.myChart.data.labels.length > maxDataPoints) {
-            window.myChart.data.labels.shift();
-            window.myChart.data.datasets[0].data.shift();
-        }
-
-        window.myChart.update();
-        console.log('Chart updated');
-    }
-}
-
-
-    // Call the function when the page loads
-    getRepoSize();
-
-    // Update the size every 20 seconds
-    setInterval(getRepoSize, 20000);
+    // Call the function for each repository with a unique identifier
+    getRepoSize('https://api.github.com/repos/blizztube/minimapper/contents', 'repo1');
+    getRepoSize('https://api.github.com/repos/blizztube/Oakley-FSA/contents', 'repo2');
+    // Add more as needed
 </script>
 
 </body>
