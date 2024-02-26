@@ -90,49 +90,55 @@
         return totalSize;
     }
 
-    // Function to update the chart
-    function updateChart(newSize) {
-        const ctx = document.getElementById('size-chart').getContext('2d');
-        const timeNow = new Date().toLocaleTimeString();
+// Function to update the chart
+function updateChart(newSize) {
+    console.log('Updating chart:', newSize);
 
-        if (!window.myChart) {
-            // If the chart doesn't exist, create a new one
-            window.myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [timeNow],
-                    datasets: [{
-                        label: 'GitHub Pages Size',
-                        data: [newSize],
-                        borderColor: 'rgb(75, 192, 192)',
-                        borderWidth: 2,
-                        fill: false,
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            position: 'bottom'
-                        }
+    const ctx = document.getElementById('size-chart').getContext('2d');
+    const timeNow = new Date().toLocaleTimeString();
+
+    if (!window.myChart) {
+        // If the chart doesn't exist, create a new one
+        console.log('Creating new chart');
+        window.myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [timeNow],
+                datasets: [{
+                    label: 'GitHub Pages Size',
+                    data: [newSize],
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 2,
+                    fill: false,
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        position: 'bottom'
                     }
                 }
-            });
-        } else {
-            // If the chart already exists, add a new data point
-            window.myChart.data.labels.push(timeNow);
-            window.myChart.data.datasets[0].data.push(newSize);
-
-            // Limit the number of data points for better visualization
-            const maxDataPoints = 10;
-            while (window.myChart.data.labels.length > maxDataPoints) {
-                window.myChart.data.labels.shift();
-                window.myChart.data.datasets[0].data.shift();
             }
+        });
+    } else {
+        // If the chart already exists, add a new data point
+        console.log('Adding new data point to existing chart');
+        window.myChart.data.labels.push(timeNow);
+        window.myChart.data.datasets[0].data.push(newSize);
 
-            window.myChart.update();
+        // Limit the number of data points for better visualization
+        const maxDataPoints = 10;
+        while (window.myChart.data.labels.length > maxDataPoints) {
+            window.myChart.data.labels.shift();
+            window.myChart.data.datasets[0].data.shift();
         }
+
+        window.myChart.update();
+        console.log('Chart updated');
     }
+}
+
 
     // Call the function when the page loads
     getRepoSize();
