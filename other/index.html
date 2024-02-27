@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Pages Size</title>
+</head>
+<body>
+
+<h1>GitHub Pages Size</h1>
+
+<!-- You can add multiple elements with different identifiers -->
+<p id="size-info-repo1">Size (Repo 1): Loading...</p>
+<p id="size-info-repo2">Size (Repo 2): Loading...</p>
+<!-- Add more as needed -->
+
+<script>
+    // Function to format bytes into readable size
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    // Function to get the size of a GitHub Pages repository
+    async function getRepoSize(repoUrl, identifier) {
+        try {
+            const repoContents = await fetchRepoContents(repoUrl);
+
+            // Calculate size based on the length of the content of all files
+            const totalSizeInBytes = await calculateTotalSize(repoContents);
+            const formattedSize = formatBytes(totalSizeInBytes);
+
+            // Update the size information for the specific repository
+            document.getElementById(`size-info-${identifier}`).textContent = `Size (${identifier}): ${formattedSize}`;
+        } catch (error) {
+            console.error(`Error fetching repository size for ${identifier}:`, error);
+        }
+    }
+
+    // Function to fetch contents of a directory
+    async function fetchRepoContents(url) {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    }
+
+    // Recursive function to calculate total size of all files in the repository
+    async function calculateTotalSize(contents) {
+        let totalSize = 0;
+
+        for (const item of contents) {
+            if (item.type === 'file') {
+                // If it's a file, add its size to the total
+                totalSize += item.size;
+            } else if (item.type === 'dir') {
+                // If it's a directory, recursively fetch its contents
+                const dirContents = await fetchRepoContents(item.url);
+                totalSize += await calculateTotalSize(dirContents);
+            }
+        }
+
+        return totalSize;
+    }
+
+    // Call the function for each repository with a unique identifier
+    getRepoSize('https://api.github.com/repos/blizztube/minimapper/contents', 'repo1');
+    getRepoSize('https://api.github.com/repos/blizztube/Oakley-FSA/contents', 'repo2');
+    // Add more as needed
+</script>
+
+</body>
+</html>
